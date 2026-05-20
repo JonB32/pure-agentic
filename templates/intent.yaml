@@ -1,0 +1,22 @@
+# Intent Statement Template
+# Copy to intents/INT-xxxx.yaml. Fill in every field.
+# Rules:
+#   - One intent = one deliverable. Never compound.
+#   - statement and outcome are written by the human.
+#   - constraints are filled by the human; agent may suggest additions.
+#   - Immutable once approved_by is set.
+
+intent:
+  id: INT-0000                        # replace with sequential ID
+  statement: ""                       # what should exist after this is done?
+  outcome: ""                         # how will you know it worked?
+  constraints:
+    - ""                              # technical, compliance, or performance constraints
+  out_of_scope:
+    - ""                              # explicit exclusions to prevent scope creep
+  priority: medium                    # low | medium | high | critical
+  domain: ""                          # e.g., api, auth, notifications, infra
+  depends_on: []                      # list of INT-xxxx this intent depends on
+  supersedes: null                    # INT-xxxx this replaces (if any)
+  approved_by: null                   # set to human name/id when approved
+  approved_at: null                   # ISO 8601 timestamp

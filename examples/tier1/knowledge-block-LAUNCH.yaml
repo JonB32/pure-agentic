@@ -1,0 +1,33 @@
+# Tier 1 Example — Knowledge Block at LAUNCH gate
+
+knowledge_block:
+  intent_ref: INT-0001
+  session_id: sess-20260519-001
+  phase_completed: LAUNCH
+  agent_id: code-agent
+
+  decisions:
+    - "sendWelcome called with fire-and-forget (no await) — registration stays non-blocking"
+    - "Token stored as hex string in db/tokens table, column: confirmation_token (new)"
+    - "Error path: catches send failure, logs {userId, error.message}, swallows exception"
+
+  files_changed:
+    - auth/registration.ts
+    - notifications/sender.ts
+    - db/tokens.ts
+
+  open_questions:
+    - "Token cleanup job for expired tokens not in scope — flag as follow-on INT-0002?"
+
+  security_findings:
+    open: []
+    resolved: []
+
+  test_summary:
+    count_added: 0
+    budget_used: ""
+
+  next_phase_context: >
+    test-agent: Impact zones are auth/registration.ts (HIGH), notifications/sender.ts (HIGH),
+    db/tokens.ts (MEDIUM). LOC changed ~65 lines. Test budget: ~97 lines.
+    Key risks: non-blocking guarantee, token uniqueness, error swallowing.

@@ -1,0 +1,82 @@
+# Tier 2 Example — Registry with versioning, environment tracks, and canary config
+# Extend registry/registry.yaml with these patterns when moving to Tier 2.
+
+# --- Example: code-agent with canary rollout ---
+
+agents:
+
+  - agent_id: code-agent
+    version: 2.1.0
+    status: stable
+    environment: prod
+    capability_tags: [code, implementation, refactor, api, backend, frontend]
+    atf_level_minimum: 2
+    tool_permissions:
+      mcp_servers: [filesystem-rw, git-rw-feature-branch]
+      network: none
+      destructive_actions: false
+    context_budget_tokens: 8000
+    model_preference: "<model-id>"
+    avg_success_rate: 0.93
+    avg_latency_ms: 14200
+    routing_notes: "Stable production version."
+    schema_ref: schemas/a2a/code-agent-output-v2.json
+    rollback_target: "2.0.1"
+    changelog:
+      - version: 2.1.0
+        date: "2026-05-15"
+        type: minor
+        summary: "Added support for TypeScript strict mode. Output schema unchanged."
+      - version: 2.0.1
+        date: "2026-04-28"
+        type: patch
+        summary: "Reduced hallucinated import statements by 40%."
+      - version: 2.0.0
+        date: "2026-04-01"
+        type: major
+        summary: "New handoff schema v2: added test_hints field. Breaking change."
+
+  - agent_id: code-agent
+    version: 2.2.0
+    status: canary
+    environment: prod
+    capability_tags: [code, implementation, refactor, api, backend, frontend, performance]
+    atf_level_minimum: 2
+    tool_permissions:
+      mcp_servers: [filesystem-rw, git-rw-feature-branch]
+      network: none
+      destructive_actions: false
+    context_budget_tokens: 8000
+    model_preference: "<model-id>"
+    avg_success_rate: 0.95
+    avg_latency_ms: 13100
+    routing_notes: "Canary: 10% traffic. Added performance optimization capability."
+    schema_ref: schemas/a2a/code-agent-output-v2.json
+    rollback_target: "2.1.0"
+    changelog:
+      - version: 2.2.0
+        date: "2026-05-19"
+        type: minor
+        summary: "Added performance profiling hints in handoff. Schema backward-compatible."
+
+# --- Canary routing configuration ---
+canary_routing:
+  code-agent:
+    stable:  { version: "2.1.0", weight: 90 }
+    canary:  { version: "2.2.0", weight: 10 }
+    promotion_criteria:
+      min_intents: 50
+      min_success_rate: 0.92
+      max_latency_delta_pct: 15
+    auto_rollback:
+      window: 20
+      rollback_threshold: 0.80
+      alert_threshold: 0.85
+
+# --- A2A schema compatibility matrix ---
+schema_compatibility:
+  "code-agent-output-v2.json":
+    accepted_by:
+      test-agent: ["v2"]
+      review-agent: ["v1", "v2"]
+      orchestrator: ["v1", "v2"]

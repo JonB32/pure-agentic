@@ -1,0 +1,21 @@
+# Tier 1 Example — Completed Intent Statement
+# This is what a real, approved INT looks like.
+
+intent:
+  id: INT-0001
+  statement: "Users receive a welcome email immediately after completing registration"
+  outcome: "Zero user complaints about missing welcome emails; email delivered within 60s of signup"
+  constraints:
+    - "Use the existing notification service (notifications/sender.ts)"
+    - "Email must include user's first name and a confirmation link"
+    - "Must not block the registration response — fire-and-forget"
+  out_of_scope:
+    - "Email template redesign"
+    - "SMS or push notification variants"
+    - "Unsubscribe flow"
+  priority: medium
+  domain: notifications
+  depends_on: []
+  supersedes: null
+  approved_by: "jon"
+  approved_at: "2026-05-19T10:00:00Z"

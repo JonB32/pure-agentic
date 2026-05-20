@@ -1,0 +1,200 @@
+# PURE Agent Registry
+# Version-controlled source of truth for all agent capabilities.
+# Do not modify agent entries in prod without human review.
+# Schema: schemas/registry-entry.yaml
+
+version: "1.0.0"
+updated: "2026-05-19"
+
+agents:
+
+  - agent_id: orchestrator
+    version: 1.0.0
+    status: stable
+    environment: prod
+    capability_tags: [orchestration, routing, lineage, planning]
+    atf_level_minimum: 0
+    tool_permissions:
+      mcp_servers: [filesystem-ro, git-ro]
+      network: none
+      destructive_actions: false
+    context_budget_tokens: 8000
+    model_preference: "<model-id>"
+    avg_success_rate: null
+    routing_notes: "Entry point. Receives intents, queries registry, assembles teams, maintains lineage."
+    schema_ref: null
+    rollback_target: null
+    changelog:
+      - version: 1.0.0
+        type: initial
+        summary: "Initial release."
+
+  - agent_id: spec-agent
+    version: 1.0.0
+    status: stable
+    environment: prod
+    capability_tags: [spec, planning, intent-analysis, similarity-check]
+    atf_level_minimum: 2
+    tool_permissions:
+      mcp_servers: [filesystem-ro, filesystem-rw-specs, git-ro]
+      network: none
+      destructive_actions: false
+    context_budget_tokens: 6000
+    model_preference: "<model-id>"
+    avg_success_rate: null
+    routing_notes: "Runs at UNIFY phase. Checks intent similarity index, generates or delta-updates spec."
+    schema_ref: schemas/a2a/spec-agent-output-v1.json
+    rollback_target: null
+    changelog:
+      - version: 1.0.0
+        type: initial
+        summary: "Initial release."
+
+  - agent_id: code-agent
+    version: 1.0.0
+    status: stable
+    environment: prod
+    capability_tags: [code, implementation, refactor, api, backend, frontend]
+    atf_level_minimum: 2
+    tool_permissions:
+      mcp_servers: [filesystem-rw, git-rw-feature-branch]
+      network: none
+      destructive_actions: false
+    context_budget_tokens: 8000
+    model_preference: "<model-id>"
+    avg_success_rate: null
+    routing_notes: "Primary implementation agent. Receives spec + impact zones. Reports files changed in handoff."
+    schema_ref: schemas/a2a/code-agent-output-v1.json
+    rollback_target: null
+    changelog:
+      - version: 1.0.0
+        type: initial
+        summary: "Initial release."
+
+  - agent_id: test-agent
+    version: 1.0.0
+    status: stable
+    environment: prod
+    capability_tags: [test, tdd, impact-analysis, property-testing, contract-testing]
+    atf_level_minimum: 2
+    tool_permissions:
+      mcp_servers: [filesystem-ro, filesystem-rw-tests, git-ro]
+      network: none
+      destructive_actions: false
+    context_budget_tokens: 6000
+    model_preference: "<model-id>"
+    avg_success_rate: null
+    routing_notes: >
+      Runs after code-agent in SHIELD. Receives files_changed from code-agent handoff.
+      Builds change graph, assigns risk tiers, generates tests within 1.5x LOC budget.
+    schema_ref: schemas/a2a/test-agent-output-v1.json
+    rollback_target: null
+    changelog:
+      - version: 1.0.0
+        type: initial
+        summary: "Initial release."
+
+  - agent_id: security-agent
+    version: 1.0.0
+    status: stable
+    environment: prod
+    capability_tags: [security, owasp, static-analysis, prompt-injection, secrets-scan]
+    atf_level_minimum: 2
+    tool_permissions:
+      mcp_servers: [filesystem-ro, git-ro]
+      network: none
+      destructive_actions: false
+    context_budget_tokens: 6000
+    model_preference: "<model-id>"
+    avg_success_rate: null
+    routing_notes: "Runs parallel with test-agent in SHIELD. OWASP Agentic Top 10 + prompt injection probe."
+    schema_ref: schemas/a2a/security-agent-output-v1.json
+    rollback_target: null
+    changelog:
+      - version: 1.0.0
+        type: initial
+        summary: "Initial release."
+
+  - agent_id: review-agent
+    version: 1.0.0
+    status: stable
+    environment: prod
+    capability_tags: [review, intent-alignment, quality, consistency]
+    atf_level_minimum: 2
+    tool_permissions:
+      mcp_servers: [filesystem-ro, git-ro]
+      network: none
+      destructive_actions: false
+    context_budget_tokens: 5000
+    model_preference: "<model-id>"
+    avg_success_rate: null
+    routing_notes: "Runs after SHIELD. Verifies implementation matches intent + spec. Does not modify code."
+    schema_ref: schemas/a2a/review-agent-output-v1.json
+    rollback_target: null
+    changelog:
+      - version: 1.0.0
+        type: initial
+        summary: "Initial release."
+
+  - agent_id: deploy-agent
+    version: 1.0.0
+    status: stable
+    environment: prod
+    capability_tags: [deploy, ci-cd, pipeline, stage, release]
+    atf_level_minimum: 3
+    tool_permissions:
+      mcp_servers: [filesystem-ro, git-rw, ci-cd-trigger]
+      network: controlled
+      destructive_actions: false
+    context_budget_tokens: 4000
+    model_preference: "<model-id>"
+    avg_success_rate: null
+    routing_notes: "ATF Level 3. Human gate required for prod. Stage pipeline is autonomous at Level 3."
+    schema_ref: schemas/a2a/deploy-agent-output-v1.json
+    rollback_target: null
+    changelog:
+      - version: 1.0.0
+        type: initial
+        summary: "Initial release."
+
+  - agent_id: context-agent
+    version: 1.0.0
+    status: stable
+    environment: prod
+    capability_tags: [context, compaction, archival, index, eviction]
+    atf_level_minimum: 2
+    tool_permissions:
+      mcp_servers: [filesystem-rw, git-rw-main]
+      network: none
+      destructive_actions: false
+    context_budget_tokens: 4000
+    model_preference: "<model-id>"
+    avg_success_rate: null
+    routing_notes: "Runs at EVOLVE phase. Compacts AGENTS.md, archives completed specs, re-indexes artifacts."
+    schema_ref: null
+    rollback_target: null
+    changelog:
+      - version: 1.0.0
+        type: initial
+        summary: "Initial release."
+
+  - agent_id: learning-agent
+    version: 1.0.0
+    status: stable
+    environment: prod
+    capability_tags: [learning, trajectory, skill-registration, fine-tuning]
+    atf_level_minimum: 3
+    tool_permissions:
+      mcp_servers: [filesystem-ro, filesystem-rw-learned-skills, git-ro]
+      network: none
+      destructive_actions: false
+    context_budget_tokens: 4000
+    model_preference: "<model-id>"
+    avg_success_rate: null
+    routing_notes: "ATF Level 3. Runs async at EVOLVE. Exports trajectories; writes to learned-skills/."
+    schema_ref: null
+    rollback_target: null
+    changelog:
+      - version: 1.0.0
+        type: initial
+        summary: "Initial release."

@@ -1,0 +1,110 @@
+# ── OS ────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ── Editor / IDE ───────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+
+# ── Environment & Secrets ──────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# ── Agent Harness Local Config ─────────────────────────
+# Keep AGENTS.md (tracked). Ignore harness-specific local settings.
+.claude/settings.local.json
+.cursor/
+.continue/
+.aider*
+
+# ── PURE: Sessions Archive ─────────────────────────────
+# Active knowledge blocks (sessions/INT-*.yaml) ARE tracked —
+# they are the audit trail and enable session resumption.
+# Only archive subdirectory is ignored to keep history clean.
+sessions/.archive/
+
+# ── PURE: Learned Skills ───────────────────────────────
+# SKILL.md files inside learned-skills/ ARE tracked.
+# Ignore raw trajectory data and intermediate learning artifacts.
+learned-skills/**/*.jsonl
+learned-skills/**/*.pkl
+learned-skills/**/*.pt
+learned-skills/**/*.bin
+learned-skills/**/trajectories/
+learned-skills/**/checkpoints/
+
+# ── PURE: Spec Archive ─────────────────────────────────
+# Active specs are tracked. Archive is gitignored by default;
+# flip to tracked if your team needs full spec history in git.
+specs/.archive/
+
+# ── PURE: Persistence Layer (Tier 2/3) ─────────────────
+# Local vector index, graph DB files, and embedding caches
+# are environment-specific and should not be committed.
+.vector-index/
+.graph-db/
+*.faiss
+*.index
+embeddings-cache/
+persistence/local/
+
+# ── Python ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+env/
+
+# ── Node / JS ─────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+.yarn/cache
+.yarn/unplugged
+.parcel-cache/
+.next/
+.nuxt/
+dist/
+
+# ── Logs ──────────────────────────────────────────────
+*.log
+logs/
+*.log.*
+
+# ── Temp / Build ──────────────────────────────────────
+tmp/
+temp/
+.tmp/
+*.tmp
+*.bak
+*.orig

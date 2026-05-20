@@ -1,0 +1,28 @@
+# Knowledge Block Template
+# Written by the active agent at every phase gate.
+# Copy to sessions/INT-xxxx-PHASE.yaml (e.g., sessions/INT-0001-LAUNCH.yaml).
+# This becomes the SEMI-STATIC context for the next agent in the pipeline.
+
+knowledge_block:
+  intent_ref: INT-0000
+  session_id: ""                  # sess-YYYYMMDD-NNN
+  phase_completed: ""             # PURPOSE | UNIFY | LAUNCH | SHIELD | EVOLVE
+  agent_id: ""                    # which agent wrote this block
+
+  decisions:
+    - ""                          # key decisions made, with brief rationale
+
+  files_changed: []               # list of files written or modified this phase
+
+  open_questions:
+    - ""                          # unresolved items for the next agent or human
+
+  security_findings:
+    open: []                      # CRITICAL/HIGH/MEDIUM findings blocking or flagged
+    resolved: []
+
+  test_summary:
+    count_added: 0
+    budget_used: ""               # e.g., "118/135 lines (88%)"
+
+  next_phase_context: ""          # one paragraph: what the next agent needs to know

@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "pure/a2a/handoff-v1",
+  "title": "PURE A2A Handoff Message",
+  "description": "Standard message schema for agent-to-agent communication in PURE.",
+  "type": "object",
+  "required": ["message_id", "from", "to", "intent_ref", "message_type", "payload", "timestamp"],
+  "additionalProperties": false,
+  "properties": {
+    "message_id": {
+      "type": "string",
+      "description": "Unique message identifier. Format: msg-{uuid4}"
+    },
+    "from": {
+      "type": "string",
+      "description": "Sending agent_id from registry."
+    },
+    "to": {
+      "type": "string",
+      "description": "Receiving agent_id from registry. Use 'orchestrator' for escalations."
+    },
+    "intent_ref": {
+      "type": "string",
+      "pattern": "^INT-[0-9]{4,}$",
+      "description": "The intent this message belongs to."
+    },
+    "spec_ref": {
+      "type": ["string", "null"],
+      "pattern": "^SPEC-[0-9]{4,}$",
+      "description": "The spec this message relates to, if applicable."
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "task_assignment",
+        "handoff",
+        "escalation",
+        "status_update",
+        "gate_passed",
+        "gate_blocked"
+      ]
+    },
+    "payload": {
+      "type": "object",
+      "description": "Message body. Fields vary by message_type.",
+      "properties": {
+        "files_changed": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "files_read": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "open_items": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "task": {
+          "type": "string"
+        },
+        "context_to_load": {
+          "type": "object",
+          "properties": {
+            "static":      { "type": "array", "items": { "type": "string" } },
+            "semi_static": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "gate_status": {
+          "type": "string",
+          "enum": ["passed", "blocked", "needs_human"]
+        },
+        "blocking_reason": {
+          "type": "string"
+        }
+      }
+    },
+    "signature": {
+      "type": ["string", "null"],
+      "description": "Optional cryptographic signature for Tier 3."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
