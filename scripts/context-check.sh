@@ -65,13 +65,20 @@ echo ""
 echo "Project State"
 echo "───────────────────────────────────────"
 
-# Open intents
-OPEN_INTENTS=$(grep -rl 'approved_by:' "$ROOT/intents/" 2>/dev/null | xargs grep -l '^.*approved_by: [^n]' 2>/dev/null | wc -l || echo 0)
-TOTAL_INTENTS=$(ls "$ROOT/intents/"INT-*.yaml 2>/dev/null | wc -l || echo 0)
+# Intents — find returns 0 cleanly even with no matches (avoids pipefail issues)
+TOTAL_INTENTS=$(find "$ROOT/intents" -maxdepth 1 -name 'INT-*.yaml' 2>/dev/null | wc -l)
+OPEN_INTENTS=0
+while IFS= read -r f; do
+  [ -n "$f" ] || continue
+  if grep -q 'approved_by: [^n]' "$f" 2>/dev/null; then
+    OPEN_INTENTS=$((OPEN_INTENTS + 1))
+  fi
+done < <(find "$ROOT/intents" -maxdepth 1 -name 'INT-*.yaml' 2>/dev/null)
 echo "  Intents: $TOTAL_INTENTS total, $OPEN_INTENTS approved+open"
 
 # Blocked gates
-BLOCKED=$(grep -rl 'gate_blocked' "$ROOT/sessions/" 2>/dev/null | wc -l || echo 0)
+BLOCKED=$(grep -rl 'gate_blocked' "$ROOT/sessions/" 2>/dev/null | wc -l || true)
+BLOCKED=${BLOCKED:-0}
 if [ "$BLOCKED" -gt 0 ]; then
   echo "  WARN  $BLOCKED blocked gate(s) — check sessions/ for gate_blocked messages"
   WARNINGS=$((WARNINGS + 1))
@@ -80,7 +87,8 @@ else
 fi
 
 # Open security findings
-SEC_OPEN=$(grep -rl 'open:' "$ROOT/sessions/" 2>/dev/null | xargs grep -A2 'security_findings:' 2>/dev/null | grep -c 'open:' || echo 0)
+SEC_OPEN=$(grep -rh -A2 'security_findings:' "$ROOT/sessions/" 2>/dev/null | grep -c 'open:' || true)
+SEC_OPEN=${SEC_OPEN:-0}
 if [ "$SEC_OPEN" -gt 0 ]; then
   echo "  WARN  Open security findings in sessions/ — review before prod deploy"
   WARNINGS=$((WARNINGS + 1))
@@ -89,7 +97,7 @@ else
 fi
 
 # Sessions store size
-SESSION_COUNT=$(ls "$ROOT/sessions/"INT-*.yaml 2>/dev/null | wc -l || echo 0)
+SESSION_COUNT=$(find "$ROOT/sessions" -maxdepth 1 -name 'INT-*.yaml' 2>/dev/null | wc -l)
 echo "  Sessions: $SESSION_COUNT knowledge blocks in sessions/"
 
 echo ""
