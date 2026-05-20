@@ -1,0 +1,62 @@
+name: context-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  context-budgets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify scripts are executable
+        run: |
+          test -x scripts/context-check.sh
+          test -x scripts/new-intent.sh
+          test -x scripts/registry-query.sh
+
+      - name: Run context budget check
+        run: ./scripts/context-check.sh
+
+      - name: Validate registry YAML
+        run: |
+          python3 -c "import yaml; yaml.safe_load(open('registry/registry.yaml'))"
+
+      - name: Validate A2A schema is valid JSON
+        run: |
+          python3 -c "import json; json.load(open('schemas/a2a/handoff-v1.json'))"
+
+      - name: Validate all intent YAML files parse
+        run: |
+          python3 - <<'PY'
+          import glob, yaml, sys
+          failed = []
+          for f in glob.glob('intents/INT-*.yaml'):
+              try:
+                  yaml.safe_load(open(f))
+              except Exception as e:
+                  failed.append(f"{f}: {e}")
+          if failed:
+              print("Intent parse failures:")
+              for x in failed: print(f"  {x}")
+              sys.exit(1)
+          PY
+
+      - name: Validate all session knowledge blocks parse
+        run: |
+          python3 - <<'PY'
+          import glob, yaml, sys
+          failed = []
+          for f in glob.glob('sessions/INT-*.yaml'):
+              try:
+                  yaml.safe_load(open(f))
+              except Exception as e:
+                  failed.append(f"{f}: {e}")
+          if failed:
+              print("Knowledge block parse failures:")
+              for x in failed: print(f"  {x}")
+              sys.exit(1)
+          PY
