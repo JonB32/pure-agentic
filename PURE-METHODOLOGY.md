@@ -229,6 +229,14 @@ Classic TDD's problem: agents told to "follow TDD" without targeted context prod
 
 **Gate:** All HIGH-tier tests pass. No new CRITICAL or HIGH security findings. Test budget not exceeded.
 
+#### Freshness check (between SHIELD and deploy)
+
+After SHIELD passes and before the orchestrator issues `task_assignment` to deploy-agent, the review-agent runs `scripts/freshness-check.sh INT-xxxx`. The script reads `base_sha` from the UNIFY knowledge block (the HEAD of the base branch at spec-write-time, see `schemas/knowledge-block-v1.json`) and diffs that sha to current HEAD restricted to the spec's Impact Zone files. If any of them changed, the script exits 1 and review-agent emits `gate_blocked` with the drifted file list.
+
+**Why this gate exists:** in environments with concurrent automated agents (or just an active team), `main` moves while a PULSE cycle is in flight. Without this check, the cycle can deliver code that conflicts with — or has been entirely superseded by — upstream work that landed in the meantime. The orchestrator's response to a drift block is a decision: rebase the spec and continue, mark the intent `superseded` (with `superseded_by:` set, see [Intent lifecycle](#intent-lifecycle)), or carve out a follow-on intent for whatever is still net-new.
+
+The check is cheap (one `git diff --name-only`), high-signal (catches the exact failure mode that motivated this addition — see issue #2), and requires no new infrastructure beyond PR1's `base_sha:` field on UNIFY blocks.
+
 ---
 
 ### ⑤ EVOLVE — Learn, Compact, Register

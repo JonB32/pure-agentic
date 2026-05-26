@@ -22,6 +22,7 @@ jobs:
           test -x scripts/registry-query.sh
           test -x scripts/pure-status.sh
           test -x scripts/archive-completed.sh
+          test -x scripts/freshness-check.sh
 
       - name: Run context budget check
         run: ./scripts/context-check.sh
