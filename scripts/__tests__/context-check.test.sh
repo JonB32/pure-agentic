@@ -33,6 +33,30 @@ json=$("$SCRIPT" --json 2>/dev/null)
 first=$(echo "$json" | head -c 1)
 assert_eq "{" "$first"
 
+it "pure:project-context markers exclude lines from the budget"
+# Build a sandbox AGENTS.md that would be 90 lines (over 80) but has 50 of
+# those lines wrapped in marker block — net 40, well under cap.
+SB="$(mktemp -d)"
+mkdir -p "$SB/agents/code-agent"
+{
+  for i in $(seq 1 20); do echo "methodology line $i"; done
+  echo "<!-- pure:project-context-start -->"
+  for i in $(seq 1 50); do echo "project line $i"; done
+  echo "<!-- pure:project-context-end -->"
+  for i in $(seq 1 18); do echo "methodology trailing $i"; done
+} > "$SB/AGENTS.md"
+# Need a code-agent AGENT.md or the script's loop is fine empty; create a stub
+echo "stub" > "$SB/agents/code-agent/AGENT.md"
+mkdir -p "$SB/scripts" "$SB/schemas"
+cp "$ROOT_REAL/scripts/context-check.sh" "$SB/scripts/context-check.sh"
+chmod +x "$SB/scripts/context-check.sh"
+out=$(cd "$SB" && ./scripts/context-check.sh 2>&1)
+assert_contains "$out" "project-context excluded"
+# 38 methodology lines is under 80, so no WARN/FAIL on AGENTS.md
+assert_not_contains "$out" "WARN  AGENTS.md"
+assert_not_contains "$out" "FAIL  AGENTS.md"
+rm -rf "$SB"
+
 it "--exit-on-warning fails when warnings exist"
 # The repo currently has a WARN on AGENTS.md (the very thing PR3 addresses).
 # Until PR3 lands, --exit-on-warning should be non-zero here.
