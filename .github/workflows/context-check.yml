@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Python deps
+        run: pip install --quiet pyyaml jsonschema
+
       - name: Verify scripts are executable
         run: |
           test -x scripts/context-check.sh
@@ -28,6 +31,49 @@ jobs:
       - name: Validate A2A schema is valid JSON
         run: |
           python3 -c "import json; json.load(open('schemas/a2a/handoff-v1.json'))"
+
+      - name: Validate intent + knowledge-block schemas are valid JSON
+        run: |
+          python3 -c "import json; json.load(open('schemas/intent-v1.json'))"
+          python3 -c "import json; json.load(open('schemas/knowledge-block-v1.json'))"
+
+      - name: Validate intents against schemas/intent-v1.json
+        run: |
+          python3 - <<'PY'
+          import glob, json, sys, yaml
+          from jsonschema import Draft7Validator
+          schema = json.load(open('schemas/intent-v1.json'))
+          validator = Draft7Validator(schema)
+          failed = []
+          for f in sorted(glob.glob('intents/INT-*.yaml')):
+              data = yaml.safe_load(open(f))
+              for err in sorted(validator.iter_errors(data), key=lambda e: e.path):
+                  loc = '/'.join(str(p) for p in err.absolute_path) or '<root>'
+                  failed.append(f"{f}: {loc}: {err.message}")
+          if failed:
+              print("Intent schema failures:")
+              for x in failed: print(f"  {x}")
+              sys.exit(1)
+          PY
+
+      - name: Validate knowledge blocks against schemas/knowledge-block-v1.json
+        run: |
+          python3 - <<'PY'
+          import glob, json, sys, yaml
+          from jsonschema import Draft7Validator
+          schema = json.load(open('schemas/knowledge-block-v1.json'))
+          validator = Draft7Validator(schema)
+          failed = []
+          for f in sorted(glob.glob('sessions/INT-*.yaml')):
+              data = yaml.safe_load(open(f))
+              for err in sorted(validator.iter_errors(data), key=lambda e: e.path):
+                  loc = '/'.join(str(p) for p in err.absolute_path) or '<root>'
+                  failed.append(f"{f}: {loc}: {err.message}")
+          if failed:
+              print("Knowledge block schema failures:")
+              for x in failed: print(f"  {x}")
+              sys.exit(1)
+          PY
 
       - name: Validate all intent YAML files parse
         run: |

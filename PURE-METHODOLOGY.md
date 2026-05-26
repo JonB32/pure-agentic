@@ -81,6 +81,25 @@ intent:
 
 **Gate:** Intent approved by human before Unify begins.
 
+#### Intent lifecycle
+
+Every intent has an explicit `status:` field. Lifecycle states:
+
+| Status        | Meaning                                                                 |
+|---------------|-------------------------------------------------------------------------|
+| `draft`       | Authored but not yet human-approved. Default.                          |
+| `approved`    | Human signed off (`approved_by` set). UNIFY may begin.                  |
+| `active`      | A PULSE cycle is in flight for this intent.                             |
+| `completed`   | Shipped. Spec + sessions become candidates for EVOLVE-phase archival.   |
+| `superseded`  | Replaced by upstream work or a follow-on intent. See `superseded_by:`.  |
+
+Two companion fields:
+
+- `superseded_by:` — free-form reference to whatever replaced this intent (commit sha, PR number, issue ID, prose).
+- `external_ref:` — link to the system of record outside the repo (e.g. `linear:ROT-20`, `jira:PROJ-123`, `github:owner/repo#456`).
+
+All three default to `null` / `draft` so existing intent files keep working unchanged. Schema: [`schemas/intent-v1.json`](schemas/intent-v1.json). Knowledge blocks are validated against [`schemas/knowledge-block-v1.json`](schemas/knowledge-block-v1.json) — both are checked by `scripts/context-check.sh` and the `context-check` CI workflow.
+
 ---
 
 ### ② UNIFY — Thin Spec + Plan

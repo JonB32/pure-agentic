@@ -25,4 +25,10 @@ knowledge_block:
     count_added: 0
     budget_used: ""               # e.g., "118/135 lines (88%)"
 
+  # base_sha is the HEAD of the base branch at the moment this knowledge block
+  # was written. Required on UNIFY blocks (spec-write-time anchor) and used by
+  # scripts/freshness-check.sh to detect upstream drift before deploy.
+  # Optional on other phases.
+  base_sha: null                  # e.g., "7af1128a..."
+
   next_phase_context: ""          # one paragraph: what the next agent needs to know
