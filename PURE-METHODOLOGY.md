@@ -30,7 +30,7 @@ The name is also the philosophy: every decision should be **purposeful, unified 
 
 2. **Thin specs, not thick docs.** Specs are generated summaries of intent, not hand-authored requirement documents. Max 50 lines per spec file. They are created by agents and curated by humans — not the reverse.
 
-3. **Context is a budget, not a dump.** Agent context files (e.g., AGENTS.md) are capped at 80 lines. Context files grow from observed failures, not speculative rules. Stale entries are evicted automatically.
+3. **Context is a budget, not a dump.** Agent context files (e.g., AGENTS.md) are capped at 80 lines of *methodology scaffolding*. Project-specific rules belong in a `<!-- pure:project-context-start --> … <!-- pure:project-context-end -->` block, which `scripts/context-check.sh` excludes from the budget. The cap protects the framework from bloat; project context is unbudgeted because every repo has different things it needs to say. Context files still grow from observed failures, not speculative rules; stale entries are evicted automatically. See [`templates/AGENTS.md.template`](templates/AGENTS.md.template).
 
 4. **Never trust, always verify — even agents you launched.** Zero-trust applies to all agent-to-agent interactions. Privilege is earned incrementally through the Agentic Trust Framework (ATF) maturity model.
 
@@ -881,6 +881,8 @@ ATF Level 1         │   SUPERVISED        │  every action requires approval
 ## Adoption Path (KISS)
 
 Three tiers — start at Tier 1, graduate only when the pain of the next tier is worth the gain.
+
+Orthogonal to tier is **topology**: are you single-agent (one model session plays every PULSE role in sequence) or multi-agent (distinct agents handing off over A2A)? Tier 1 is almost always single-agent; A2A messages there become journal entries rather than delivery mechanisms. See [`docs/topology-modes.md`](docs/topology-modes.md) for the keep-vs-skip table per element and the upgrade path.
 
 ### Tier 1: Solo / Starter (Day 1 viable)
 - 1 Orchestrator agent (any agent harness: local, hosted, or CLI-based)
