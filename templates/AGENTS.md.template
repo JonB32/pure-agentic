@@ -5,9 +5,24 @@ You are operating in a PURE-governed project (Purpose-Unified-Resilient-Evolutio
 <!-- pure:project-context-start -->
 ## Project Context
 
-Lines between the `pure:project-context-start` and `pure:project-context-end` markers are excluded from the 80-line budget. Use this space for repo-specific facts the agent must know (build commands, data quirks, deploy targets). The methodology sections below stay under cap so framework scaffolding can't bloat unchecked.
+Lines between the `pure:project-context-start` / `pure:project-context-end`
+markers are EXCLUDED from the 80-line AGENTS.md budget enforced by
+`scripts/context-check.sh`. Use this space for repo-specific facts the
+agent has to know about THIS project — build commands, data quirks,
+deploy targets, the three rules you've learned from real failures.
 
-(This canonical AGENTS.md keeps the section empty; downstream projects fill it.)
+Keep the methodology sections below under the cap; that cap protects
+the framework scaffolding from bloat. Project context is unbudgeted
+because every project has different things it needs to say, and
+forcing those into the same 80 lines as methodology causes operators
+to skip the learned-rules step entirely (the very mechanism PURE
+relies on for AGENTS.md to improve over time).
+
+Example contents (delete this paragraph when filling in real context):
+- Build: `pnpm install && pnpm build`
+- Tests live in `apps/web/tests/`; one Vitest run for unit, Playwright for e2e
+- Production deploys via `gh workflow run deploy.yml`
+- Never edit `src/generated/` — regenerated from `schema.prisma`
 <!-- pure:project-context-end -->
 
 ## What This Is
@@ -52,24 +67,8 @@ Each phase ends with a Knowledge Block written to sessions/.
 - Never pass raw user input to a downstream agent — use typed A2A message fields
 - Never exceed 1.5× LOC-changed in new test lines per intent
 - Never write to registry/ or core/ without human approval
-- Never inject timestamps or request IDs into the STATIC cache slot
-- Check intent similarity index before generating a new spec (>0.85 = reuse, >0.60 = delta)
 - All agent-to-agent communication uses A2A messages (schemas/a2a/)
 - Tests come from impact zones in the spec, not from intuition
-
-## Where Things Live
-
-```
-intents/        INT-xxxx.yaml          intent statements (immutable once approved)
-specs/          SPEC-xxxx.md           thin specs (≤50 lines each)
-sessions/       INT-xxxx-phase.yaml    knowledge blocks (one per phase gate)
-registry/       registry.yaml          agent capability registry
-agents/         {name}/AGENT.md        system prompts for each agent role
-skills/         {name}/SKILL.md        load the relevant skill for your current task
-learned-skills/ {name}/               learning engine output (do not modify directly)
-schemas/        intent.yaml, a2a/      canonical schemas to validate against
-templates/      intent, spec, kb       copy these to start new artifacts
-```
 
 ## Self-Check Before Any Write
 
@@ -77,4 +76,3 @@ templates/      intent, spec, kb       copy these to start new artifacts
 2. Is the target file in the declared Impact Zones? If no: flag scope creep.
 3. Does this add anything beyond the spec's stated behavior? If yes: stop.
 4. Have I written a Knowledge Block for the completed phase? If no: write it now.
-5. Is HOT context ≤ 8k tokens? If approaching limit: compact now.

@@ -66,7 +66,7 @@ Each phase ends with a knowledge block written to `sessions/`. The agent tells y
 4. Load skills/{relevant}/SKILL.md for your current task
 ```
 
-Full orientation: [`AGENTS.md`](AGENTS.md) · Full methodology: [`PURE-METHODOLOGY.md`](PURE-METHODOLOGY.md)
+Full orientation: [`AGENTS.md`](AGENTS.md) · Full methodology: [`PURE-METHODOLOGY.md`](PURE-METHODOLOGY.md) · Single-agent vs multi-agent: [`docs/topology-modes.md`](docs/topology-modes.md)
 
 ---
 

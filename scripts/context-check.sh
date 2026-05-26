@@ -68,19 +68,37 @@ header() {
   echo "═══════════════════════════════════════════════"
 }
 
+# Count lines outside any pure:project-context-start..end marker block.
+# The marker convention lets AGENTS.md / AGENT.md carry an unbudgeted
+# Project Context section (per docs/topology-modes.md). Marker lines
+# themselves are excluded too.
+budget_line_count() {
+  local file="$1"
+  awk '
+    /<!--[[:space:]]*pure:project-context-start[[:space:]]*-->/ { skipping = 1; next }
+    /<!--[[:space:]]*pure:project-context-end[[:space:]]*-->/   { skipping = 0; next }
+    !skipping
+  ' "$file" | wc -l
+}
+
 check_budget() {
   local label="$1" file="$2" limit="$3"
   if [ ! -f "$file" ]; then return; fi
-  local lines
-  lines=$(wc -l < "$file")
+  local lines total
+  total=$(wc -l < "$file")
+  lines=$(budget_line_count "$file")
+  local suffix=""
+  if [ "$lines" -ne "$total" ]; then
+    suffix=" (counted $lines of $total; project-context excluded)"
+  fi
   if [ "$lines" -gt "$limit" ]; then
-    emit FAIL "$label" "$lines lines (limit: $limit)" "$file"
+    emit FAIL "$label" "$lines lines (limit: $limit)$suffix" "$file"
     ERRORS=$((ERRORS + 1))
   elif [ "$lines" -gt $(( limit * 80 / 100 )) ]; then
-    emit WARN "$label" "$lines lines (limit: $limit, at $(( lines * 100 / limit ))%)" "$file"
+    emit WARN "$label" "$lines lines (limit: $limit, at $(( lines * 100 / limit ))%)$suffix" "$file"
     WARNINGS=$((WARNINGS + 1))
   else
-    emit OK "$label" "$lines lines" "$file"
+    emit OK "$label" "$lines lines$suffix" "$file"
   fi
 }
 
