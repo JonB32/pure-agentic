@@ -103,9 +103,11 @@ skills/{name}/SKILL.md      on-demand how-to skills
 hooks/session-start.md      agent orientation checklist
 hooks/session-end.md        end-of-session guarantee checklist
 
-scripts/new-intent.sh       create a new intent interactively
+scripts/new-intent.sh       create a new intent (interactive or --non-interactive)
 scripts/registry-query.sh   find agents by capability tags
-scripts/context-check.sh    audit context budgets and project state
+scripts/context-check.sh    audit context budgets and project state (--json, --quiet, --exit-on-warning)
+scripts/pure-status.sh      one-line snapshot: active intents, current phase, next agent
+scripts/archive-completed.sh archive completed/superseded specs + sessions (dry-run by default)
 
 intents/                    your INT-xxxx.yaml files (tracked)
 specs/                      your SPEC-xxxx.md files (tracked)
