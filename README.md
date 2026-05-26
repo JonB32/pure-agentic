@@ -108,6 +108,7 @@ scripts/registry-query.sh   find agents by capability tags
 scripts/context-check.sh    audit context budgets and project state (--json, --quiet, --exit-on-warning)
 scripts/pure-status.sh      one-line snapshot: active intents, current phase, next agent
 scripts/archive-completed.sh archive completed/superseded specs + sessions (dry-run by default)
+scripts/freshness-check.sh   detect upstream drift on Impact Zone files since spec-write-time
 
 intents/                    your INT-xxxx.yaml files (tracked)
 specs/                      your SPEC-xxxx.md files (tracked)
