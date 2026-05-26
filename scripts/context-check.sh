@@ -6,6 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+SCHEMAS_DIR="$ROOT/schemas"
 
 ERRORS=0
 WARNINGS=0
@@ -99,6 +100,84 @@ fi
 # Sessions store size
 SESSION_COUNT=$(find "$ROOT/sessions" -maxdepth 1 -name 'INT-*.yaml' 2>/dev/null | wc -l)
 echo "  Sessions: $SESSION_COUNT knowledge blocks in sessions/"
+
+echo ""
+echo "Schema Validation (intents + knowledge blocks)"
+echo "───────────────────────────────────────"
+
+# Validate intents/INT-*.yaml and sessions/INT-*.yaml against schemas/*.json.
+# Requires python3 with PyYAML + jsonschema. If jsonschema is missing, skip
+# (CI installs it; local users get a one-line notice).
+if ! python3 -c "import jsonschema, yaml" 2>/dev/null; then
+  echo "  SKIP  jsonschema not installed — pip install jsonschema to enable"
+else
+  SCHEMA_OUTPUT=$(
+    INTENT_SCHEMA="$SCHEMAS_DIR/intent-v1.json" \
+    KB_SCHEMA="$SCHEMAS_DIR/knowledge-block-v1.json" \
+    INTENTS_GLOB="$ROOT/intents" \
+    SESSIONS_GLOB="$ROOT/sessions" \
+    python3 - <<'PY'
+import glob, json, os, sys
+import yaml
+from jsonschema import Draft7Validator
+
+def load_schema(path):
+    if not os.path.exists(path):
+        return None
+    with open(path) as f:
+        return json.load(f)
+
+def validate_file(path, schema, label):
+    try:
+        with open(path) as f:
+            data = yaml.safe_load(f)
+    except Exception as e:
+        print(f"  FAIL  {label}: YAML parse error in {path}: {e}")
+        return 1
+    errors = sorted(Draft7Validator(schema).iter_errors(data), key=lambda e: e.path)
+    if not errors:
+        return 0
+    for err in errors:
+        loc = "/".join(str(p) for p in err.absolute_path) or "<root>"
+        print(f"  FAIL  {label}: {os.path.relpath(path)} — {loc}: {err.message}")
+    return len(errors)
+
+intent_schema = load_schema(os.environ["INTENT_SCHEMA"])
+kb_schema     = load_schema(os.environ["KB_SCHEMA"])
+
+err_count = 0
+ok_count  = 0
+
+if intent_schema:
+    for f in sorted(glob.glob(os.path.join(os.environ["INTENTS_GLOB"], "INT-*.yaml"))):
+        e = validate_file(f, intent_schema, "intent")
+        if e: err_count += e
+        else: ok_count += 1
+
+if kb_schema:
+    for f in sorted(glob.glob(os.path.join(os.environ["SESSIONS_GLOB"], "INT-*.yaml"))):
+        e = validate_file(f, kb_schema, "knowledge-block")
+        if e: err_count += e
+        else: ok_count += 1
+
+print(f"__SUMMARY__ ok={ok_count} errors={err_count}")
+PY
+  )
+  echo "$SCHEMA_OUTPUT" | grep -v '^__SUMMARY__' || true
+  SUMMARY_LINE=$(echo "$SCHEMA_OUTPUT" | grep '^__SUMMARY__' | tail -1)
+  OK_COUNT=$(echo "$SUMMARY_LINE" | sed -n 's/.*ok=\([0-9]*\).*/\1/p')
+  ERR_COUNT=$(echo "$SUMMARY_LINE" | sed -n 's/.*errors=\([0-9]*\).*/\1/p')
+  OK_COUNT=${OK_COUNT:-0}
+  ERR_COUNT=${ERR_COUNT:-0}
+  if [ "$ERR_COUNT" -gt 0 ]; then
+    ERRORS=$((ERRORS + ERR_COUNT))
+    echo "  $OK_COUNT file(s) validated, $ERR_COUNT error(s)"
+  elif [ "$OK_COUNT" -eq 0 ]; then
+    echo "  (no intents or knowledge blocks to validate)"
+  else
+    echo "  OK    $OK_COUNT file(s) validated against schemas/"
+  fi
+fi
 
 echo ""
 echo "═══════════════════════════════════════════════"

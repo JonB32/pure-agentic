@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "pure/knowledge-block-v1",
+  "title": "PURE Knowledge Block",
+  "description": "Schema for sessions/INT-xxxx-PHASE.yaml. Mirrors templates/knowledge-block.yaml.",
+  "type": "object",
+  "required": ["knowledge_block"],
+  "properties": {
+    "knowledge_block": {
+      "type": "object",
+      "required": [
+        "intent_ref",
+        "phase_completed",
+        "agent_id",
+        "decisions",
+        "files_changed",
+        "next_phase_context"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "intent_ref": {
+          "type": "string",
+          "pattern": "^INT-[0-9]{4,}$"
+        },
+        "session_id":      { "type": ["string", "null"] },
+        "phase_completed": {
+          "type": "string",
+          "enum": ["PURPOSE", "UNIFY", "LAUNCH", "SHIELD", "EVOLVE", "PARTIAL"]
+        },
+        "agent_id":        { "type": "string" },
+        "decisions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "files_changed": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "open_questions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "security_findings": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "open":     { "type": "array" },
+            "resolved": { "type": "array" }
+          }
+        },
+        "test_summary": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "count_added": { "type": "integer", "minimum": 0 },
+            "budget_used": { "type": "string" }
+          }
+        },
+        "base_sha": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "pattern": "^[0-9a-f]{7,40}$" }
+          ],
+          "description": "HEAD of base branch when this block was written. Required on UNIFY for freshness-check."
+        },
+        "next_phase_context": { "type": "string" }
+      }
+    }
+  }
+}

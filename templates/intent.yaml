@@ -20,3 +20,8 @@ intent:
   supersedes: null                    # INT-xxxx this replaces (if any)
   approved_by: null                   # set to human name/id when approved
   approved_at: null                   # ISO 8601 timestamp
+
+  # Lifecycle (added in schema v1)
+  status: draft                       # draft | approved | active | completed | superseded
+  superseded_by: null                 # free-form ref: commit sha, PR #, issue ID, prose
+  external_ref: null                  # e.g. "linear:ROT-20", "jira:PROJ-123", "github:owner/repo#456"

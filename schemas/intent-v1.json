@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "pure/intent-v1",
+  "title": "PURE Intent Statement",
+  "description": "Schema for intents/INT-xxxx.yaml. Mirrors templates/intent.yaml.",
+  "type": "object",
+  "required": ["intent"],
+  "properties": {
+    "intent": {
+      "type": "object",
+      "required": ["id", "statement", "outcome"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^INT-[0-9]{4,}$"
+        },
+        "statement": { "type": "string" },
+        "outcome":   { "type": "string" },
+        "constraints": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "out_of_scope": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "domain": { "type": "string" },
+        "depends_on": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^INT-[0-9]{4,}$" }
+        },
+        "supersedes": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "pattern": "^INT-[0-9]{4,}$" }
+          ]
+        },
+        "approved_by": { "type": ["string", "null"] },
+        "approved_at": { "type": ["string", "null"] },
+
+        "status": {
+          "type": "string",
+          "enum": ["draft", "approved", "active", "completed", "superseded"]
+        },
+        "superseded_by": { "type": ["string", "null"] },
+        "external_ref":  { "type": ["string", "null"] }
+      }
+    }
+  }
+}
